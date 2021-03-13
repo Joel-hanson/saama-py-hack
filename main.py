@@ -44,7 +44,7 @@ def get_subject_data_list(domain, subject):
     data = response['data']
     return data
 
-for subject_id in common_subject_list[:10]:
+for subject_id in common_subject_list:
     ae_subject_data_list = get_subject_data_list('ae', subject_id)
     cm_subject_data_list = get_subject_data_list('cm', subject_id)
     ae_df = pd.DataFrame(ae_subject_data_list, columns=ae_required_columns)
@@ -111,6 +111,7 @@ def submit_query(query_list):
 
 # %%
 # Type 1
+#df = df.groupby('subjid', as_index=False)
 
 type1_df = df[df.aestdat < df.cmstdat]
 type1_df["type"] = "TYPE1"
@@ -155,8 +156,3 @@ type5_df["type"] = "TYPE5"
 type5_df["email_address"] = "joelhanson2511995@gmail.com"
 type5_dict = type5_df[["formname", "formid", "formidx", 'type', 'subjectid', 'email_address']].to_dict(orient='record')
 submit_query(type5_dict)
-
-# %%
-
-
-# %%
