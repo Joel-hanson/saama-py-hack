@@ -19,11 +19,12 @@ def get_subject_list(domain):
     data = response['data']
     return data
 
-
+# Get the subject list for both the ae and cm
 ae_subject_list = set(get_subject_list('ae'))
 cm_subject_list = set(get_subject_list('cm'))
-# %%
 
+# %%
+# The following chunk of code will join both the ae and cm data to get a single file
 common_subject_list = list(ae_subject_list.intersection(cm_subject_list))
 ae_required_columns = ['aeterm', 'aestdat', 'aespid', 'aeendat', 'aetoxgr', 'aecm', 'subjid', 'subjectid', 'siteid', "formname", "formid", "formidx"]
 cm_required_columns = ['cmtrt', 'cmstdat', 'cmendat', 'cmaeno', 'subjid', 'siteid']
@@ -61,7 +62,7 @@ for subject_id in common_subject_list:
 df = ae_req_df.join(cm_req_df.set_index('subjid'), 'subjid', how='left', rsuffix="cm")
 
 # %%
-
+# The following will handle the date with different format
 custom_months = {
     50: "/01",
     51: "/02",
@@ -101,7 +102,7 @@ for col in df.columns:
         df[col] = df[col].apply(lambda row: refactor_date(row))
         df[col] = pd.to_datetime(df[col])
 # %%
-# to submit query
+# This the function to submit query
 def submit_query(query_list):
     response_data = []
     for query in query_list:
@@ -111,7 +112,7 @@ def submit_query(query_list):
 
 # %%
 # Type 1
-#df = df.groupby('subjid', as_index=False)
+# df = df.groupby('subjid', as_index=False)
 
 type1_df = df[df.aestdat < df.cmstdat]
 type1_df["type"] = "TYPE1"
