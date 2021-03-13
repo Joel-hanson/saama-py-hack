@@ -8,9 +8,6 @@ subject_list_url = 'https://pyhack-dot-pharmanlp-177020.uc.r.appspot.com/api/1/S
 subject_data_list_url = 'https://pyhack-dot-pharmanlp-177020.uc.r.appspot.com/api/1/StudyHack/{}/subject/{}/list'
 query_url = 'https://pyhack-dot-pharmanlp-177020.uc.r.appspot.com/api/1/StudyHack/query'
 
-for domain in domain_ids:
-    url = subject_list_url.format(domain)
-
 
 def get_all_subject_response(domain):
     url = subject_list_url.format(domain)
@@ -47,7 +44,7 @@ def get_subject_data_list(domain, subject):
     data = response['data']
     return data
 
-for subject_id in common_subject_list:
+for subject_id in common_subject_list[:10]:
     ae_subject_data_list = get_subject_data_list('ae', subject_id)
     cm_subject_data_list = get_subject_data_list('cm', subject_id)
     ae_df = pd.DataFrame(ae_subject_data_list, columns=ae_required_columns)
@@ -103,6 +100,14 @@ for col in df.columns:
     if 'dat' in col:
         df[col] = df[col].apply(lambda row: refactor_date(row))
         df[col] = pd.to_datetime(df[col])
+# %%
+# to submit query
+def submit_query(query_list):
+    response_data = []
+    for query in query_list:
+        response = requests.post(query_url, data=query)
+        response_data += response.json()
+    return response_data
 
 # %%
 # Type 1
@@ -111,7 +116,7 @@ type1_df = df[df.aestdat < df.cmstdat]
 type1_df["type"] = "TYPE1"
 type1_df["email_address"] = "joelhanson2511995@gmail.com"
 type1_dict = type1_df[["formname", "formid", "formidx", 'type', 'subjectid', 'email_address']].to_dict(orient='record')
-
+submit_query(type1_dict)
 
 # %%
 
@@ -121,6 +126,7 @@ type2_df = df[df.cmstdat < df.aeendat]
 type2_df["type"] = "TYPE2"
 type2_df["email_address"] = "joelhanson2511995@gmail.com"
 type2_dict = type2_df[["formname", "formid", "formidx", 'type', 'subjectid', 'email_address']].to_dict(orient='record')
+submit_query(type2_dict)
 
 # %%
 
@@ -130,6 +136,7 @@ type3_df = df[(df.aeterm == df.aeterm) & (df.aestdat == df.aeendat)]
 type3_df["type"] = "TYPE3"
 type3_df["email_address"] = "joelhanson2511995@gmail.com"
 type3_dict = type3_df[["formname", "formid", "formidx", 'type', 'subjectid', 'email_address']].to_dict(orient='record')
+submit_query(type3_dict)
 
 # %%
 
@@ -138,22 +145,18 @@ type4_df = df[(df.cmtrt == df.cmtrt) & (df.cmstdat == df.cmendat)]
 type4_df["type"] = "TYPE4"
 type4_df["email_address"] = "joelhanson2511995@gmail.com"
 type4_dict = type4_df[["formname", "formid", "formidx", 'type', 'subjectid', 'email_address']].to_dict(orient='record')
+submit_query(type4_dict)
 
 # %%
 
-# Type 
+# Type 5
 type5_df = df[~df.aeendat.isna() & ~df.cmendat.isna()]
 type5_df["type"] = "TYPE5"
 type5_df["email_address"] = "joelhanson2511995@gmail.com"
 type5_dict = type5_df[["formname", "formid", "formidx", 'type', 'subjectid', 'email_address']].to_dict(orient='record')
+submit_query(type5_dict)
 
 # %%
 
-def submit_query(query_list):
-    response_data = []
-    for query in query_list:
-        response = request.post(query_url, data=query)
-        response_data += response.json()
-    return response_data
 
-submit_query(type1_dict)
+# %%
